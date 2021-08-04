@@ -57,6 +57,7 @@ def draw_window(current_word,user_text,word_score, char_score, sprite_id):
     #get_sprite(enemy_sprites,3).movement(-2,-1)
     WIN.blit(get_sprite_image(enemy_sprites, sprite_id),
         (get_sprite(enemy_sprites,sprite_id).rect.x,get_sprite(enemy_sprites,sprite_id).rect.y))
+
     #Display current word
     WIN.blit(current_word,(WIN_W/2 - current_word.get_width()/2,
         WIN_H/2 - current_word.get_height()/2))
