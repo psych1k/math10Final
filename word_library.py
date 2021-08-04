@@ -1,4 +1,5 @@
-
+#Word Library class by Stephan Green
+#Used to create an object that will contain all words from a given file
 class Word_Library(object):
 
     def __init__(self, textfile):
