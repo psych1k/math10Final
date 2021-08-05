@@ -1,15 +1,12 @@
 #main.py by Stephan Green and Ronak Bhagia
 #The main file for the game.
-import pygame
-import random
-import os
+import pygame, random, os, math
 from enum import Enum
 
-import other_screens
+import heart, other_screens, player
 import word_library as wl
 import enemy as e
 import button as b
-
 
 pygame.init()
 pygame.font.init()
@@ -22,7 +19,7 @@ class Game_State(Enum):
 WIN_W, WIN_H = 900, 600 #game window height and width
 WIN = pygame.display.set_mode((WIN_W, WIN_H), pygame.RESIZABLE)
 FPS = 60
-
+SECS = 1000 #multiply to get desired time in seconds
 #Fonts
 WORD_FONT100 = pygame.font.SysFont('Comic Sans', 100)
 WORD_FONT40 = pygame.font.SysFont('Comic Sans', 40)
@@ -32,16 +29,46 @@ BLACK = (0,0,0)
 WHITE = (255,255,255)
 GRAY = (128,128,128)
 
+#Custom Events
+GAIN_HEALTH = pygame.USEREVENT + 1
+
+
 #Enemy Sprites
 enemy_sprites = pygame.sprite.Group()
 place_x = 0
-
 for filename in os.listdir('Assets'):
     if filename[len(filename)-5:] == 'd.png': #enemy sprites end with this
         place_x += 150
-        enemy = e.Enemy(place_x,50,os.path.join('Assets', filename))
+        enemy = e.Enemy(place_x,150,os.path.join('Assets', filename))
         enemy_sprites.add(enemy)
 
+#Player Settings
+MAX_HEALTH = 5
+#possible solution for showing Health
+#make a sprite group
+#line it up side by side
+place_x = 0
+health_bar = pygame.sprite.Group()
+for h in range(MAX_HEALTH):
+    place_x += 55
+    hearts = heart.Heart(os.path.join('Assets','hud_heartFull.png'),
+                os.path.join('Assets','hud_heartEmpty.png'), MAX_HEALTH,place_x,WIN_H-100)
+    health_bar.add(hearts)
+
+def refill_health(health_bar):
+    for h in range(len(health_bar)):
+        get_sprite(health_bar, h).set_active()
+
+def draw_health(health_bar, curr_health):
+    i = MAX_HEALTH
+    while i > curr_health:
+        get_sprite(health_bar, i-1).set_inactive()
+        i -= 1
+    i = 0
+    while i < curr_health:
+        get_sprite(health_bar, i).set_active()
+        i+=1
+    health_bar.draw(WIN)
 #Takes in a sprite group and an index and returns the sprite image at that given
 #index.
 def get_sprite_image(group, index):
@@ -63,8 +90,9 @@ def get_sprite(group, index):
 #INPUT_RECT = pygame.Rect(WIN_W/2 - 70, WIN_H/2 + 100, 300, 100)
 
 #Called every frame to redraw the window every frame
-def draw_window(current_word,user_text,word_score, char_score, sprite_id):
+def draw_window(current_word,user_text,word_score, char_score, sprite_id, ch,current_time):
     WIN.fill(BLACK)
+    draw_health(health_bar, ch)
     #drawing enemy on screen
     #example of an ememy sprite moving
     #get_sprite(enemy_sprites,3).movement(-2,-1)
@@ -86,8 +114,10 @@ def draw_window(current_word,user_text,word_score, char_score, sprite_id):
     #Display Scores
     wscore = WORD_FONT40.render("Words Typed: " + str(word_score), 1, WHITE)
     cscore = WORD_FONT40.render("Characters Typed: " + str(char_score), 1, WHITE)
+    tscore = WORD_FONT40.render("Time Elapsed: " + str(current_time), 1, WHITE)
     WIN.blit(wscore, (10, 10))
     WIN.blit(cscore, (10, 50))
+    WIN.blit(tscore, (10, 90))
     pygame.display.update()
 
 def main():
@@ -95,17 +125,24 @@ def main():
     diction = wl.Word_Library('words_common.txt')
     word_text = "start"
     current_word = WORD_FONT100.render(word_text,1,WHITE)
+    user = player.Player(MAX_HEALTH)
+
+    #Clock and Time
     clock = pygame.time.Clock()
-    run = True
+    current_time = pygame.time.get_ticks()
+    start_time = pygame.time.get_ticks()
+    time_for_word = 5 * SECS
 
     #Game State
     game_state = Game_State.TITLE
+    run = True
 
     #Buttons
     start_button = b.Button((0,200,200), 150, 300, 250, 100, 'Start')
     retry_button = b.Button((0,200,200), 400, 225, 250, 100, 'Retry')
     title_button = b.Button((0,200,200), 150, 400, 250, 100, 'Title')
 
+    can_gain = True
     input_active = True
     user_text = ''
 
@@ -115,6 +152,18 @@ def main():
     while run:
         clock.tick(FPS) #Sets how many Frames Per Second the game will run at
         if game_state == Game_State.MAIN:
+            current_time = math.floor((pygame.time.get_ticks() - start_time)/SECS)
+            time_for_word -= 10
+            if time_for_word <= 0:
+                user.lose_health()
+                time_for_word = (len(word_text)+2) * SECS
+            if word_score % 10 == 0 and user.get_health() < MAX_HEALTH and can_gain:
+                user.gain_health()
+                can_gain = False
+                # pygame.event.post(pygame.event.Event(GAIN_HEALTH))
+            if user.get_health() <= 0:
+                game_state = Game_State.OVER
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
@@ -127,17 +176,18 @@ def main():
                         user_text += event.unicode
 
                     if user_text == word_text: #if equal to the word make a new word
-
+                        if word_score % 11 == 0:
+                            can_gain = True
                         word_score += 1
                         char_score += len(word_text)
                         word_text = random.choice(diction.get_library())[:-1]
                         current_word = WORD_FONT100.render(word_text,1,WHITE)
                         user_text = ''
                         sprite_id = random.randint(0,len(enemy_sprites) - 1)
-
+                        time_for_word = len(word_text)+5 * SECS
             if not run:
                 break
-            draw_window(current_word, user_text, word_score, char_score, sprite_id)
+            draw_window(current_word, user_text, word_score, char_score, sprite_id,user.get_health(),current_time)
         elif game_state == Game_State.TITLE or game_state == None:
             for event in pygame.event.get():
                 pos = pygame.mouse.get_pos()
@@ -147,10 +197,14 @@ def main():
                         break
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if start_button.isActive(pos):
-                        print('clicked!')
+                        start_button.set_color(GRAY)
                         game_state = Game_State.MAIN
+            if not run:
+                break
             other_screens.draw_title(start_button)
         elif game_state == Game_State.OVER:
+            user.set_health(MAX_HEALTH)
+            refill_health(health_bar)
             for event in pygame.event.get():
                 pos = pygame.mouse.get_pos()
                 if event.type == pygame.QUIT:
@@ -159,11 +213,11 @@ def main():
                         break
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if retry_button.isActive(pos):
-                        print('clicked!')
                         game_state = Game_State.MAIN
                     elif title_button.isActive(pos):
-                        print('clicked!')
                         game_state = Game_State.TITLE
+            if not run:
+                break
             other_screens.draw_gameover(retry_button, title_button)
     print('Game Over')
 

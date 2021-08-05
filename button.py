@@ -2,6 +2,7 @@ import pygame
 
 class Button(object):
     def __init__(self, color, x, y, w, h, text="Button"):
+        self.d_color = color #default color
         self.color = color
         self.x = x
         self.y = y
@@ -14,6 +15,8 @@ class Button(object):
         text = font.render(self.text, 1, (0,0,0))
         win.blit(text,(self.x + (self.w/2 - text.get_width()/2), self.y + (self.h/2 - text.get_height()/2)))
 
+    def set_color(self, color):
+        self.color = color
     def isActive(self, pos):
         if pos[0] > self.x and pos[0] < self.x + self.w:
             if pos[1] > self.y and pos[1] < self.y + self.h:
