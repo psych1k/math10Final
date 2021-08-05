@@ -1,12 +1,23 @@
+#main.py by Stephan Green and Ronak Bhagia
+#The main file for the game.
 import pygame
 import random
 import os
+from enum import Enum
+
+import other_screens
 import word_library as wl
 import enemy as e
+import button as b
+
 
 pygame.init()
 pygame.font.init()
-
+#Enum structure to manage what screen gets shown
+class Game_State(Enum):
+    TITLE = 1
+    MAIN = 2
+    OVER = 3
 #Display Settings
 WIN_W, WIN_H = 900, 600 #game window height and width
 WIN = pygame.display.set_mode((WIN_W, WIN_H), pygame.RESIZABLE)
@@ -26,12 +37,12 @@ enemy_sprites = pygame.sprite.Group()
 place_x = 0
 
 for filename in os.listdir('Assets'):
-    if filename[len(filename)-3:] == 'png':
+    if filename[len(filename)-5:] == 'd.png':
         place_x += 150
         enemy = e.Enemy(place_x,50,os.path.join('Assets', filename))
         enemy_sprites.add(enemy)
 
-#Takes in a sprite group and an index and returns the sprite at that given
+#Takes in a sprite group and an index and returns the sprite image at that given
 #index.
 def get_sprite_image(group, index):
     assert group.has
@@ -39,6 +50,8 @@ def get_sprite_image(group, index):
         return group.sprites()[index].image
     except IndexError:
         return group.sprites()[0].image
+#Takes in a sprite group and an index and returns the sprite at that given
+#index.
 def get_sprite(group, index):
     assert group.has
     try:
@@ -84,6 +97,13 @@ def main():
     current_word = WORD_FONT100.render(word_text,1,WHITE)
     clock = pygame.time.Clock()
     run = True
+    #Game State
+    game_state = Game_State.TITLE
+
+    #Buttons
+    start_button = b.Button((0,200,200), 150, 225, 250, 100, 'Start')
+    retry_button = b.Button((0,200,200), 150, 225, 250, 100, 'Retry')
+    title_button = b.Button((0,200,200), 150, 500, 250, 100, 'Title')
 
     input_active = True
     user_text = ''
@@ -93,36 +113,55 @@ def main():
     sprite_id = 0
     while run:
         clock.tick(FPS) #Sets how many Frames Per Second the game will run at
+        if game_state == Game_State.MAIN:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+                    pygame.quit()
+                    break
+                if event.type == pygame.KEYDOWN and event.key != pygame.K_RETURN:
+                    if event.key == pygame.K_BACKSPACE:
+                        user_text = user_text[:-1]
+                    else:
+                        user_text += event.unicode
 
-        for event in pygame.event.get():
-
-            if event.type == pygame.QUIT:
-                run = False
-                pygame.quit()
-                break;
-            # if event.type == pygame.MOUSEBUTTONDOWN:
-            #     # if INPUT_RECT.collidepoint(event.pos):
-            #     #     input_active = True
-            #     # else:
-            #     #     input_active = False
-
-            if event.type == pygame.KEYDOWN and event.key != pygame.K_RETURN:
-                #[:-1 removes \n]
-                if event.key == pygame.K_BACKSPACE:
-                    user_text = user_text[:-1]
-                else:
-                    user_text += event.unicode
-
-                if user_text == word_text: #if equal to the word make a new word
-                    word_score += 1
-                    char_score += len(word_text)
-                    word_text = random.choice(diction.get_library())[:-1]
-                    current_word = WORD_FONT100.render(word_text,1,WHITE)
-                    user_text = ''
-                    sprite_id = random.randint(0,len(enemy_sprites) - 1)
-        if not run:
-            break
-        draw_window(current_word, user_text, word_score, char_score, sprite_id)
+                    if user_text == word_text: #if equal to the word make a new word
+                        word_score += 1
+                        char_score += len(word_text)
+                        word_text = random.choice(diction.get_library())[:-1]
+                        current_word = WORD_FONT100.render(word_text,1,WHITE)
+                        user_text = ''
+                        sprite_id = random.randint(0,len(enemy_sprites) - 1)
+            if not run:
+                break
+            draw_window(current_word, user_text, word_score, char_score, sprite_id)
+        elif game_state == Game_State.TITLE or game_state == None:
+            for event in pygame.event.get():
+                pos = pygame.mouse.get_pos()
+                if event.type == pygame.QUIT:
+                        run = False
+                        pygame.quit()
+                        break
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if start_button.isActive(pos):
+                        print('clicked!')
+                        game_state = Game_State.MAIN
+            other_screens.draw_title(start_button)
+        elif game_state == Game_State.OVER:
+            for event in pygame.event.get():
+                pos = pygame.mouse.get_pos()
+                if event.type == pygame.QUIT:
+                        run = False
+                        pygame.quit()
+                        break
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if retry_button.isActive(pos):
+                        print('clicked!')
+                        game_state = Game_State.MAIN
+                    elif title_button.isActive(pos):
+                        print('clicked!')
+                        game_state = Game_State.TITLE
+            other_screens.draw_gameover(retry_button, title_button)
     print('Game Over')
 
 
