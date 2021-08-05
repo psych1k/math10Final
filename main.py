@@ -21,7 +21,7 @@ class Game_State(Enum):
 #Display Settings
 WIN_W, WIN_H = 900, 600 #game window height and width
 WIN = pygame.display.set_mode((WIN_W, WIN_H), pygame.RESIZABLE)
-FPS = 30
+FPS = 60
 
 #Fonts
 WORD_FONT100 = pygame.font.SysFont('Comic Sans', 100)
@@ -37,7 +37,7 @@ enemy_sprites = pygame.sprite.Group()
 place_x = 0
 
 for filename in os.listdir('Assets'):
-    if filename[len(filename)-5:] == 'd.png':
+    if filename[len(filename)-5:] == 'd.png': #enemy sprites end with this
         place_x += 150
         enemy = e.Enemy(place_x,50,os.path.join('Assets', filename))
         enemy_sprites.add(enemy)
@@ -92,18 +92,19 @@ def draw_window(current_word,user_text,word_score, char_score, sprite_id):
 
 def main():
     pygame.display.set_caption("Typing Game")
-    diction = wl.Word_Library('words_alpha.txt')
+    diction = wl.Word_Library('words_common.txt')
     word_text = "start"
     current_word = WORD_FONT100.render(word_text,1,WHITE)
     clock = pygame.time.Clock()
     run = True
+
     #Game State
     game_state = Game_State.TITLE
 
     #Buttons
-    start_button = b.Button((0,200,200), 150, 225, 250, 100, 'Start')
-    retry_button = b.Button((0,200,200), 150, 225, 250, 100, 'Retry')
-    title_button = b.Button((0,200,200), 150, 500, 250, 100, 'Title')
+    start_button = b.Button((0,200,200), 150, 300, 250, 100, 'Start')
+    retry_button = b.Button((0,200,200), 400, 225, 250, 100, 'Retry')
+    title_button = b.Button((0,200,200), 150, 400, 250, 100, 'Title')
 
     input_active = True
     user_text = ''
@@ -126,12 +127,14 @@ def main():
                         user_text += event.unicode
 
                     if user_text == word_text: #if equal to the word make a new word
+
                         word_score += 1
                         char_score += len(word_text)
                         word_text = random.choice(diction.get_library())[:-1]
                         current_word = WORD_FONT100.render(word_text,1,WHITE)
                         user_text = ''
                         sprite_id = random.randint(0,len(enemy_sprites) - 1)
+
             if not run:
                 break
             draw_window(current_word, user_text, word_score, char_score, sprite_id)
