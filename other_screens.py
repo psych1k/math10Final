@@ -6,11 +6,12 @@ import button
 from main import *
 from enum import Enum
 
-def draw_title(button):
+def draw_title(button, hbtn):
     title = WORD_FONT100.render('Typing Game',1,WHITE)
     WIN.fill(BLACK)
     WIN.blit(title, (WIN_W/2 - title.get_width()/2, WIN_H/2- title.get_height()/2 - 100))
     button.draw(WIN, WORD_FONT40)
+    hbtn.draw(WIN, WORD_FONT40)
     pygame.display.update()
 
 def draw_gameover(retry_button, title_button):

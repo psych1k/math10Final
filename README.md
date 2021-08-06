@@ -1,10 +1,15 @@
 # math10Final
 
-To run the program, type:
+To run the program:
 
-python main.py
+Windows:
+  Have Python 3 installed
+  Double click on start.bat.
 
-into the terminal.
+Other OS:
+  Have Python 3 installed
+  Type 'python main.py' or 'python3 main.py'
+
 
 words_alpha.txt downloaded from https://github.com/dwyl/english-words/blob/master/words_alpha.txt
 words_common.txt downloaded from https://gist.github.com/deekayen/4148741

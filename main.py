@@ -20,6 +20,7 @@ WIN_W, WIN_H = 900, 600 #game window height and width
 WIN = pygame.display.set_mode((WIN_W, WIN_H), pygame.RESIZABLE)
 FPS = 60
 SECS = 1000 #multiply to get desired time in seconds
+
 #Fonts
 WORD_FONT100 = pygame.font.SysFont('Comic Sans', 100)
 WORD_FONT40 = pygame.font.SysFont('Comic Sans', 40)
@@ -31,7 +32,7 @@ GRAY = (128,128,128)
 
 #Custom Events
 GAIN_HEALTH = pygame.USEREVENT + 1
-
+MIN_TIME = 2
 
 #Enemy Sprites
 enemy_sprites = pygame.sprite.Group()
@@ -90,7 +91,7 @@ def get_sprite(group, index):
 #INPUT_RECT = pygame.Rect(WIN_W/2 - 70, WIN_H/2 + 100, 300, 100)
 
 #Called every frame to redraw the window every frame
-def draw_window(current_word,user_text,word_score, char_score, sprite_id, ch,current_time):
+def draw_window(current_word,user_text,word_score, char_score, sprite_id, ch,current_time,tl):
     WIN.fill(BLACK)
     draw_health(health_bar, ch)
     #drawing enemy on screen
@@ -115,14 +116,18 @@ def draw_window(current_word,user_text,word_score, char_score, sprite_id, ch,cur
     wscore = WORD_FONT40.render("Words Typed: " + str(word_score), 1, WHITE)
     cscore = WORD_FONT40.render("Characters Typed: " + str(char_score), 1, WHITE)
     tscore = WORD_FONT40.render("Time Elapsed: " + str(current_time), 1, WHITE)
+    t_left = WORD_FONT40.render("Time Left: " + str(tl), 1, WHITE)
     WIN.blit(wscore, (10, 10))
     WIN.blit(cscore, (10, 50))
     WIN.blit(tscore, (10, 90))
+    WIN.blit(t_left, (10,WIN_H - 50))
     pygame.display.update()
 
 def main():
     pygame.display.set_caption("Typing Game")
-    diction = wl.Word_Library('words_common.txt')
+    #diction = wl.Word_Library('words_common.txt')
+    difficulty = "words_common.txt"
+    diction = wl.Word_Library(difficulty)
     word_text = "start"
     current_word = WORD_FONT100.render(word_text,1,WHITE)
     user = player.Player(MAX_HEALTH)
@@ -138,7 +143,11 @@ def main():
     run = True
 
     #Buttons
-    start_button = b.Button((0,200,200), 150, 300, 250, 100, 'Start')
+    #TileScreen
+    easy_button = b.Button((0,200,200), 150, 300, 250, 100, 'Easy')
+    hard_button = b.Button((0,200,200), 150, 450, 250, 100, 'Hard')
+
+    #GameOverScreen
     retry_button = b.Button((0,200,200), 400, 225, 250, 100, 'Retry')
     title_button = b.Button((0,200,200), 150, 400, 250, 100, 'Title')
 
@@ -152,16 +161,17 @@ def main():
     while run:
         clock.tick(FPS) #Sets how many Frames Per Second the game will run at
         if game_state == Game_State.MAIN:
-            current_time = math.floor((pygame.time.get_ticks() - start_time)/SECS)
-            time_for_word -= 10
+            current_time = math.floor((pygame.time.get_ticks()-start_time)/SECS)
+            time_for_word -= 20
             if time_for_word <= 0:
                 user.lose_health()
-                time_for_word = (len(word_text)+2) * SECS
+                time_for_word = max(MIN_TIME,(len(word_text)-2)) * SECS
             if word_score % 10 == 0 and user.get_health() < MAX_HEALTH and can_gain:
                 user.gain_health()
                 can_gain = False
                 # pygame.event.post(pygame.event.Event(GAIN_HEALTH))
             if user.get_health() <= 0:
+                pygame.time.wait(SECS)
                 game_state = Game_State.OVER
 
             for event in pygame.event.get():
@@ -184,10 +194,11 @@ def main():
                         current_word = WORD_FONT100.render(word_text,1,WHITE)
                         user_text = ''
                         sprite_id = random.randint(0,len(enemy_sprites) - 1)
-                        time_for_word = len(word_text)+5 * SECS
+                        time_for_word = max(MIN_TIME,(len(word_text)-2)) * SECS
             if not run:
                 break
-            draw_window(current_word, user_text, word_score, char_score, sprite_id,user.get_health(),current_time)
+            draw_window(current_word, user_text, word_score, char_score,
+                        sprite_id,user.get_health(),current_time,math.floor(time_for_word/SECS))
         elif game_state == Game_State.TITLE or game_state == None:
             for event in pygame.event.get():
                 pos = pygame.mouse.get_pos()
@@ -196,12 +207,17 @@ def main():
                         pygame.quit()
                         break
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if start_button.isActive(pos):
-                        start_button.set_color(GRAY)
+                    if easy_button.isActive(pos):
+                        difficulty = 'words_common.txt'
+                        diction = wl.Word_Library(difficulty)
+                        game_state = Game_State.MAIN
+                    if hard_button.isActive(pos):
+                        difficulty = 'words_alpha.txt'
+                        diction = wl.Word_Library(difficulty)
                         game_state = Game_State.MAIN
             if not run:
                 break
-            other_screens.draw_title(start_button)
+            other_screens.draw_title(easy_button,hard_button)
         elif game_state == Game_State.OVER:
             user.set_health(MAX_HEALTH)
             refill_health(health_bar)
