@@ -2,6 +2,7 @@
 #The main file for the game.
 import pygame, random, os, math
 from enum import Enum
+#from pygame import mixer
 
 import heart, other_screens, player
 import word_library as wl
@@ -10,6 +11,7 @@ import button as b
 
 pygame.init()
 pygame.font.init()
+pygame.mixer.init()
 #Enum structure to manage what screen gets shown
 class Game_State(Enum):
     TITLE = 1
@@ -30,8 +32,17 @@ BLACK = (0,0,0)
 WHITE = (255,255,255)
 GRAY = (128,128,128)
 
+BACKGROUND = pygame.transform.scale(pygame.image.load(os.path.join('Assets', 'space.png')),(WIN_W, WIN_H))
+#Sounds
+# pygame.mixer.music.load(os.path.join('Assets','music.wav'))
+pygame.mixer.music.load('./Assets/music.wav')
+pygame.mixer.music.set_volume(0.5)
+HIT_SOUND = pygame.mixer.Sound(os.path.join('Assets', 'laser.wav'))
+GET_SOUND = pygame.mixer.Sound(os.path.join('Assets', 'collect.wav'))
 #Custom Events
 GAIN_HEALTH = pygame.USEREVENT + 1
+LOSE_HEALTH = pygame.USEREVENT + 2
+
 MIN_TIME = 2
 
 #Enemy Sprites
@@ -91,12 +102,24 @@ def get_sprite(group, index):
 #INPUT_RECT = pygame.Rect(WIN_W/2 - 70, WIN_H/2 + 100, 300, 100)
 
 #Called every frame to redraw the window every frame
+counter = 0
 def draw_window(current_word,user_text,word_score, char_score, sprite_id, ch,current_time,tl):
-    WIN.fill(BLACK)
+    global counter
+    #WIN.fill(BLACK)
+    WIN.blit(BACKGROUND,(0,0))
     draw_health(health_bar, ch)
     #drawing enemy on screen
     #example of an ememy sprite moving
     #get_sprite(enemy_sprites,3).movement(-2,-1)
+    if counter <= 15 and counter > -1:
+        counter += 1
+        get_sprite(enemy_sprites, sprite_id).movement(0, 1)
+    elif counter > 15:
+        counter += 1
+        get_sprite(enemy_sprites, sprite_id).movement(0, -1)
+    if counter >30:
+        counter = 0
+
     WIN.blit(get_sprite_image(enemy_sprites, sprite_id),
         (get_sprite(enemy_sprites,sprite_id).rect.x,get_sprite(enemy_sprites,sprite_id).rect.y))
 
@@ -125,6 +148,7 @@ def draw_window(current_word,user_text,word_score, char_score, sprite_id, ch,cur
 
 def main():
     pygame.display.set_caption("Typing Game")
+    pygame.mixer.music.play(-1)
     #diction = wl.Word_Library('words_common.txt')
     difficulty = "words_common.txt"
     diction = wl.Word_Library(difficulty)
@@ -166,9 +190,11 @@ def main():
             if time_for_word <= 0:
                 user.lose_health()
                 time_for_word = max(MIN_TIME,(len(word_text)-2)) * SECS
+                HIT_SOUND.play()
             if word_score % 10 == 0 and user.get_health() < MAX_HEALTH and can_gain:
                 user.gain_health()
                 can_gain = False
+                GET_SOUND.play()
                 # pygame.event.post(pygame.event.Event(GAIN_HEALTH))
             if user.get_health() <= 0:
                 pygame.time.wait(SECS)
@@ -198,7 +224,7 @@ def main():
             if not run:
                 break
             draw_window(current_word, user_text, word_score, char_score,
-                        sprite_id,user.get_health(),current_time,math.floor(time_for_word/SECS))
+                        sprite_id,user.get_health(),current_time,math.ceil(time_for_word/SECS))
         elif game_state == Game_State.TITLE or game_state == None:
             for event in pygame.event.get():
                 pos = pygame.mouse.get_pos()
@@ -206,12 +232,12 @@ def main():
                         run = False
                         pygame.quit()
                         break
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if easy_button.isActive(pos):
+                if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN:
+                    if easy_button.isActive(pos) or event.key == pygame.K_e:
                         difficulty = 'words_common.txt'
                         diction = wl.Word_Library(difficulty)
                         game_state = Game_State.MAIN
-                    if hard_button.isActive(pos):
+                    if hard_button.isActive(pos) or event.key == pygame.K_h:
                         difficulty = 'words_alpha.txt'
                         diction = wl.Word_Library(difficulty)
                         game_state = Game_State.MAIN
@@ -221,6 +247,12 @@ def main():
         elif game_state == Game_State.OVER:
             user.set_health(MAX_HEALTH)
             refill_health(health_bar)
+            current_time = 0
+            user_text = ''
+
+            word_score = 0
+            char_score = 0
+            sprite_id = 0
             for event in pygame.event.get():
                 pos = pygame.mouse.get_pos()
                 if event.type == pygame.QUIT:
