@@ -12,16 +12,18 @@ import button as b
 pygame.init()
 pygame.font.init()
 pygame.mixer.init()
-#Enum structure to manage what screen gets shown
+
+#Game State Enum
 class Game_State(Enum):
     TITLE = 1
     MAIN = 2
     OVER = 3
+
 #Display Settings
 WIN_W, WIN_H = 900, 600 #game window height and width
-WIN = pygame.display.set_mode((WIN_W, WIN_H), pygame.RESIZABLE)
+WIN = pygame.display.set_mode((WIN_W, WIN_H))
 FPS = 60
-SECS = 1000 #multiply to get desired time in seconds
+SECS = 1000 #multiplied to get desired time in seconds
 
 #Fonts
 WORD_FONT100 = pygame.font.SysFont('Comic Sans', 100)
@@ -34,11 +36,11 @@ GRAY = (128,128,128)
 
 BACKGROUND = pygame.transform.scale(pygame.image.load(os.path.join('Assets', 'space.png')),(WIN_W, WIN_H))
 #Sounds
-# pygame.mixer.music.load(os.path.join('Assets','music.wav'))
-pygame.mixer.music.load('./Assets/music.wav')
+pygame.mixer.music.load(os.path.join('Assets','music.wav'))
 pygame.mixer.music.set_volume(0.5)
 HIT_SOUND = pygame.mixer.Sound(os.path.join('Assets', 'laser.wav'))
 GET_SOUND = pygame.mixer.Sound(os.path.join('Assets', 'collect.wav'))
+
 #Custom Events
 GAIN_HEALTH = pygame.USEREVENT + 1
 LOSE_HEALTH = pygame.USEREVENT + 2
@@ -56,9 +58,8 @@ for filename in os.listdir('Assets'):
 
 #Player Settings
 MAX_HEALTH = 5
-#possible solution for showing Health
-#make a sprite group
-#line it up side by side
+
+#Health System
 place_x = 0
 health_bar = pygame.sprite.Group()
 for h in range(MAX_HEALTH):
@@ -229,15 +230,24 @@ def main():
             for event in pygame.event.get():
                 pos = pygame.mouse.get_pos()
                 if event.type == pygame.QUIT:
-                        run = False
-                        pygame.quit()
-                        break
+                    run = False
+                    pygame.quit()
+                    break
                 if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN:
-                    if easy_button.isActive(pos) or event.key == pygame.K_e:
+                    if easy_button.isActive(pos):
                         difficulty = 'words_common.txt'
                         diction = wl.Word_Library(difficulty)
                         game_state = Game_State.MAIN
-                    if hard_button.isActive(pos) or event.key == pygame.K_h:
+                    if hard_button.isActive(pos):
+                        difficulty = 'words_alpha.txt'
+                        diction = wl.Word_Library(difficulty)
+                        game_state = Game_State.MAIN
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_e:
+                        difficulty = 'words_common.txt'
+                        diction = wl.Word_Library(difficulty)
+                        game_state = Game_State.MAIN
+                    if event.key == pygame.K_h:
                         difficulty = 'words_alpha.txt'
                         diction = wl.Word_Library(difficulty)
                         game_state = Game_State.MAIN

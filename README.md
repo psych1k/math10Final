@@ -18,8 +18,14 @@ Text input solution from geeksforgeeks.org (https://www.geeksforgeeks.org/how-to
 
 Alien Sprite assets from Kenny Game Assets (version 41)
 
-Next Steps:
+Completed:
   Create Health system
   Make enemies do damage
   Have title screen
   Have game over screen
+  Difficulty options
+
+Next:
+  Polish Title and Game Over Screen
+  Have a Score Screen
+    Keep track of high scores
