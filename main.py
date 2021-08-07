@@ -185,6 +185,7 @@ def main():
     sprite_id = 0
     while run:
         clock.tick(FPS) #Sets how many Frames Per Second the game will run at
+        print(start_time)
         if game_state == Game_State.MAIN:
             current_time = math.floor((pygame.time.get_ticks()-start_time)/SECS)
             time_for_word -= 20
@@ -200,6 +201,7 @@ def main():
             if user.get_health() <= 0:
                 pygame.time.wait(SECS)
                 game_state = Game_State.OVER
+                start_time = pygame.time.get_ticks()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -257,7 +259,7 @@ def main():
         elif game_state == Game_State.OVER:
             user.set_health(MAX_HEALTH)
             refill_health(health_bar)
-            current_time = 0
+
             user_text = ''
 
             word_score = 0
