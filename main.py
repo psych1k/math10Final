@@ -25,7 +25,7 @@ class Game_State(Enum):
  #game window height and width
 pygame.display.Info()
 WIN_W = max(900, pygame.display.Info().current_w)
-WIN_H = max(600, pygame.display.Info().current_h-60)
+WIN_H = max(600, pygame.display.Info().current_h)
 WIN = pygame.display.set_mode((WIN_W, WIN_H))
 FPS = 60
 SECS = 1000 #multiplied to get desired time in seconds
@@ -172,18 +172,19 @@ def main():
 
     #Buttons color, x, y, w, h, text="Button"
     #TileScreen
-    easy_button = b.Button(GREEN, 150, 300, 250, 100, 'Easy')
-    hard_button = b.Button(RED, 150, 450, 250, 100, 'Hard')
+    easy_button = b.Button(GREEN, WIN_W/2 -150, WIN_H/2, 250, 100, 'Easy')
+    hard_button = b.Button(RED, WIN_W/2 -150, WIN_H/2+200, 250, 100, 'Hard')
+    exit_button = b.Button(RED, WIN_W/2 -150, WIN_H/2+400, 250, 100, 'Exit Game')
     mute_button = b.Button(LIGHT_BLUE, WIN_W - 150, WIN_H - 100, 100, 100, 'Mute')
     is_muted = False
 
     #GameOverScreen
-    retry_button = b.Button(GREEN, 150, 225, 250, 100, 'Retry')
-    title_button = b.Button(LIGHT_BLUE, 150, 400, 250, 100, 'Title')
+    retry_button = b.Button(GREEN, WIN_W/2 -150, WIN_H/2, 250, 100, 'Retry')
+    title_button = b.Button(LIGHT_BLUE, WIN_W/2 -150, WIN_H/2+200, 250, 100, 'Title')
 
     #PauseScreen
-    unpause_button = b.Button(LIGHT_BLUE, 400, 225, 250, 100, 'Resume')
-    quit_button = b.Button(RED, 400, 400, 250, 100, 'Quit')
+    unpause_button = b.Button(LIGHT_BLUE, WIN_W/2 -150, WIN_H/2, 250, 100, 'Resume')
+    quit_button = b.Button(RED, WIN_W/2 -150, WIN_H/2+200, 250, 100, 'Quit')
 
     can_gain = True
     input_active = True
@@ -255,6 +256,10 @@ def main():
                         difficulty = 'words_alpha.txt'
                         diction = wl.Word_Library(difficulty)
                         game_state = Game_State.MAIN
+                    if exit_button.isActive(pos):
+                        run = False
+                        pygame.quit()
+                        break
                     if mute_button.isActive(pos) and not is_muted:
                         pygame.mixer.music.pause()
                         is_muted = True
@@ -272,7 +277,7 @@ def main():
                         game_state = Game_State.MAIN
             if not run:
                 break
-            other_screens.draw_title(easy_button,hard_button,mute_button)
+            other_screens.draw_title(easy_button,hard_button,mute_button,exit_button)
         elif game_state == Game_State.OVER:
             user.set_health(MAX_HEALTH)
             refill_health(health_bar)

@@ -24,7 +24,7 @@ Completed:
   Have title screen
   Have game over screen
   Difficulty options
-
+  Pause Screen
 Next:
   Polish Title and Game Over Screen
   Have a Score Screen
