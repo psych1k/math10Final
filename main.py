@@ -40,6 +40,7 @@ WHITE = (255,255,255)
 GRAY = (128,128,128)
 LIGHT_BLUE = (0,200,200)
 RED = (255,0,0)
+YELLOW = (255, 255,0)
 GREEN = (0,255,0)
 
 BACKGROUND = pygame.transform.scale(pygame.image.load(os.path.join('Assets', 'space.png')),(WIN_W, WIN_H))
@@ -61,7 +62,7 @@ place_x = 0
 for filename in os.listdir('Assets'):
     if filename[len(filename)-5:] == 'd.png': #enemy sprites end with this
         place_x += WIN_W/7
-        enemy = e.Enemy(place_x,150,os.path.join('Assets', filename))
+        enemy = e.Enemy(place_x,random.randint(50,150),os.path.join('Assets', filename))
         enemy_sprites.add(enemy)
 
 #Player Settings
@@ -152,6 +153,7 @@ def draw_window(current_word,user_text,word_score, char_score, sprite_id, ch,cur
     WIN.blit(t_left, (10, WIN_H - 50))
     pygame.display.update()
 
+#Main function
 def main():
     pygame.display.set_caption("Typing Game")
     pygame.mixer.music.play(-1)
@@ -176,7 +178,7 @@ def main():
     #Buttons Constructor|color, x, y, w, h, text="Button"
     #TileScreen
     easy_button = b.Button(GREEN, WIN_W/2 -150, WIN_H/2, 250, 100, 'Easy')
-    hard_button = b.Button(RED, WIN_W/2 -150, WIN_H/2+200, 250, 100, 'Hard')
+    hard_button = b.Button(YELLOW, WIN_W/2 -150, WIN_H/2+200, 250, 100, 'Hard')
     exit_button = b.Button(RED, WIN_W/2 -150, WIN_H/2+400, 250, 100, 'Exit Game')
     mute_button = b.Button(LIGHT_BLUE, WIN_W - 150, WIN_H - 100, 100, 100, 'Mute')
 
