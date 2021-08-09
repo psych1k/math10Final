@@ -3,11 +3,13 @@
 To run the program:
 
 Windows:
-  Have Python 3 installed
-  Double click on start.bat.
+  Have Python 3 and Pygame installed
+      Pygame can be installed using 'pip install pygame' in CMD
+  Double click on start.bat
 
 Other OS:
-  Have Python 3 installed
+  Have Python 3 installed and Pygame installed
+      Pygame can be installed using 'pip install pygame' in the terminal
   Type 'python main.py' or 'python3 main.py'
 
 
