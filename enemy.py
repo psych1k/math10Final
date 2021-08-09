@@ -13,10 +13,3 @@ class Enemy(pygame.sprite.Sprite):
     def movement(self, velocity_x, velocity_y=0):
         self.rect.x += velocity_x
         self.rect.y += velocity_y
-
-    def idle_anim(self):
-        for y in range(0,10):
-            self.movement(0,y)
-        for y in range(0,-10):
-            print(y)
-            self.movement(0, y)

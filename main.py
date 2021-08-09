@@ -77,10 +77,12 @@ for h in range(MAX_HEALTH):
     health_bar.add(hearts)
 
 def refill_health(health_bar):
+    assert health_bar.has
     for h in range(len(health_bar)):
         get_sprite(health_bar, h).set_active()
 
 def draw_health(health_bar, curr_health):
+    assert health_bar.has
     i = MAX_HEALTH
     while i > curr_health:
         get_sprite(health_bar, i-1).set_inactive()
@@ -166,17 +168,17 @@ def main():
     start_time = pygame.time.get_ticks()
     time_for_word = 5 * SECS
 
-    #Game State
+    #Game States
     game_state = Game_State.TITLE
     run = True
+    is_muted = False
 
-    #Buttons color, x, y, w, h, text="Button"
+    #Buttons Constructor|color, x, y, w, h, text="Button"
     #TileScreen
     easy_button = b.Button(GREEN, WIN_W/2 -150, WIN_H/2, 250, 100, 'Easy')
     hard_button = b.Button(RED, WIN_W/2 -150, WIN_H/2+200, 250, 100, 'Hard')
     exit_button = b.Button(RED, WIN_W/2 -150, WIN_H/2+400, 250, 100, 'Exit Game')
     mute_button = b.Button(LIGHT_BLUE, WIN_W - 150, WIN_H - 100, 100, 100, 'Mute')
-    is_muted = False
 
     #GameOverScreen
     retry_button = b.Button(GREEN, WIN_W/2 -150, WIN_H/2, 250, 100, 'Retry')
@@ -208,7 +210,7 @@ def main():
                 GET_SOUND.play()
                 # pygame.event.post(pygame.event.Event(GAIN_HEALTH))
             if user.get_health() <= 0:
-                start_time = pygame.time.get_ticks()
+                #start_time = pygame.time.get_ticks()
                 game_state = Game_State.OVER
 
             for event in pygame.event.get():
@@ -292,6 +294,7 @@ def main():
                         pygame.quit()
                         break
                 if event.type == pygame.MOUSEBUTTONDOWN:
+                    start_time = pygame.time.get_ticks()
                     if retry_button.isActive(pos):
                         game_state = Game_State.MAIN
                     elif title_button.isActive(pos):
@@ -322,7 +325,6 @@ def main():
                     if event.key == pygame.K_ESCAPE:
                         game_state = Game_State.MAIN
             other_screens.draw_pause(unpause_button, quit_button, mute_button)
-    print('Game Over')
 
 if __name__ == "__main__":
     main()

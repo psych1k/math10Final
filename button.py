@@ -1,3 +1,6 @@
+#button.py
+#Used to create button objects for a Pygame game
+#Heavily inspired by Tech With Tim's implementation of the button class
 import pygame
 
 class Button(object):
@@ -12,7 +15,7 @@ class Button(object):
 
     def draw(self, win, font):
         pygame.draw.rect(win, self.color, (self.x,self.y,self.w,self.h),0)
-        text = font.render(self.text, 1, (0,0,0))
+        text = font.render(self.text, 1, (0,0,0)) #(0,0,0) = Black
         win.blit(text,(self.x + (self.w/2 - text.get_width()/2), self.y + (self.h/2 - text.get_height()/2)))
 
     def set_color(self, color):
