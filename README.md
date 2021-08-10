@@ -31,3 +31,12 @@ Next:
   Polish Title and Game Over Screen
   Have a Score Screen
     Keep track of high scores
+
+
+list
+dictionary
+definitions
+logic tracing
+recursion
+computation complexity
+statisitcal learning model

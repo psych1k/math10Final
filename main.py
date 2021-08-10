@@ -62,7 +62,7 @@ place_x = 0
 for filename in os.listdir('Assets'):
     if filename[len(filename)-5:] == 'd.png': #enemy sprites end with this
         place_x += WIN_W/7
-        enemy = e.Enemy(place_x,random.randint(50,150),os.path.join('Assets', filename))
+        enemy = e.Enemy(place_x,random.randint(50,150),os.path.join('Assets', filename), int(WIN_H/6))
         enemy_sprites.add(enemy)
 
 #Player Settings

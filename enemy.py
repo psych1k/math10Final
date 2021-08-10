@@ -2,9 +2,9 @@
 #Inherits from pygame's sprite class
 import pygame
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, pos_x, pos_y, i):
+    def __init__(self, pos_x, pos_y, i, size):
         super().__init__()
-        self.sprite = pygame.image.load(i)
+        self.sprite = pygame.transform.scale(pygame.image.load(i),(size,size))
         self.image = self.sprite
         self.rect = self.image.get_rect()
         self.rect.topleft = [pos_x,pos_y]
