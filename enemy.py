@@ -1,5 +1,7 @@
 #Enemy class by Stephan Green
 #Inherits from pygame's sprite class
+#Used for creating enemy objects for pygame
+#8/12/2021
 import pygame
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y, i, size):

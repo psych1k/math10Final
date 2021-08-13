@@ -1,6 +1,7 @@
 #button.py
 #Used to create button objects for a Pygame game
 #Heavily inspired by Tech With Tim's implementation of the button class
+#8/12/2021
 import pygame
 
 class Button(object):

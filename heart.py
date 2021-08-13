@@ -1,3 +1,7 @@
+#Heart class by Stephan Green
+#Inherits from pygame's sprite class
+#Used to display full/empty hearts for a game.
+#8/12/2021
 import pygame
 class Heart(pygame.sprite.Sprite):
     def __init__(self, a, i, th,x,y): #a = activeheart i= inactive heart

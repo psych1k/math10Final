@@ -1,15 +1,14 @@
 #main.py by Stephan Green and Ronak Bhagia
 #The main file for the game.
+#8/12/2021
 import pygame, random, os, math
 from enum import Enum
-#from pygame import mixer
 
 import heart, other_screens, player
 import word_library as wl
 import enemy as e
 import button as b
 
-#pygame.init()
 pygame.display.init()
 pygame.font.init()
 pygame.mixer.init()
@@ -114,7 +113,6 @@ def get_sprite(group, index):
 counter = 0
 def draw_window(current_word,user_text,word_score, char_score, sprite_id, ch,current_time,tl):
     global counter
-    #WIN.fill(BLACK)
     WIN.blit(BACKGROUND,(0,0))
     draw_health(health_bar, ch)
 
@@ -204,15 +202,14 @@ def main():
             time_for_word -= 20
             if time_for_word <= 0:
                 user.lose_health()
-                time_for_word = max(MIN_TIME,(len(word_text)-2)) * SECS
+                time_for_word = max(MIN_TIME,(len(word_text)-MIN_TIME)) * SECS
                 HIT_SOUND.play()
             if word_score % 10 == 0 and user.get_health() < MAX_HEALTH and can_gain:
                 user.gain_health()
                 can_gain = False
                 GET_SOUND.play()
-                # pygame.event.post(pygame.event.Event(GAIN_HEALTH))
+
             if user.get_health() <= 0:
-                #start_time = pygame.time.get_ticks()
                 game_state = Game_State.OVER
 
             for event in pygame.event.get():
