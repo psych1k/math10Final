@@ -229,7 +229,7 @@ def main():
                 if user_text == word_text: #if equal to the word make a new word
                     if word_score % 11 == 0:
                         can_gain = True
-                    word_score += 1
+                    word_score += 2
                     char_score += len(word_text)
                     word_text = random.choice(diction.get_library())[:-1]
                     current_word = WORD_FONT100.render(word_text,1,WHITE)
